@@ -1,2 +1,2 @@
 # Estructuras
-Proyecto Estructuras dde datos
+Proyecto Estructuras de datos
