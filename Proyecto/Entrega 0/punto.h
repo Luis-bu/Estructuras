@@ -3,20 +3,22 @@
 
 #include <cmath>
 
+using namespace std; 
+
 struct Punto {
     double x, y, z;
 
     // Constructor
     Punto(double x_ = 0.0, double y_ = 0.0, double z_ = 0.0) : x(x_), y(y_), z(z_) {}
 
-    // Distancia Euclidiana
+    // Es la distancia euclidiana
     double distanciaEuclidiana(const Punto& otro) const {
-        return std::sqrt(std::pow(x - otro.x, 2) + std::pow(y - otro.y, 2) + std::pow(z - otro.z, 2));
+        return sqrt(pow(x - otro.x, 2) + pow(y - otro.y, 2) + pow(z - otro.z, 2));
     }
 
-    // Distancia de Manhattan
+    // Es la distancia de Manhattan
     double distanciaManhattan(const Punto& otro) const {
-        return std::abs(x - otro.x) + std::abs(y - otro.y) + std::abs(z - otro.z);
+        return abs(x - otro.x) + abs(y - otro.y) + abs(z - otro.z);
     }
 };
 

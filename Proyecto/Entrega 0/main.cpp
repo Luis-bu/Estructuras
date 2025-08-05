@@ -3,33 +3,36 @@
 #include <vector>
 #include "comandos.h"
 
-std::vector<std::string> dividir(const std::string& entrada) {
-    std::vector<std::string> tokens;
-    std::stringstream ss(entrada);
-    std::string token;
+using namespace std; 
+
+vector<string> dividir(const string& entrada) {
+    vector<string> tokens;
+    stringstream ss(entrada);
+    string token;
     while (ss >> token) {
         tokens.push_back(token);
     }
     return tokens;
 }
 
-//Nuestro programa principal
-//Aquí se gestionan los comandos y se interactúa con el usuario
+// Nuestro programa principal
+// Aquí se gestionan los comandos y se interactúa con el usuario
 int main() {
     ManejadorComandos manejador;
-    std::string entrada;
-    std::cout << "Bienvenido al programa. Ingrese 'ayuda' para ver los comandos disponibles o 'ayuda <comando>' para detalles." << std::endl;
+    string entrada;
+    cout << "Bienvenido al programa. Ingrese 'ayuda' para ver los comandos disponibles o 'ayuda <comando>' para detalles." << endl;
 
     while (true) {
-        std::cout << "$ ";
-        std::getline(std::cin, entrada);
-        entrada.erase(0, entrada.find_first_not_of(" \n\r\t")); // Eliminamos los espacios en blanco al inicio
-        entrada.erase(entrada.find_last_not_of(" \n\r\t") + 1); // Eliminamos los espacios en blancoal final
+        cout << "$ ";
+        getline(cin, entrada);
+        //Usamos validación para evitar errores de entrada
+        entrada.erase(0, entrada.find_first_not_of(" \n\r\t")); 
+        entrada.erase(entrada.find_last_not_of(" \n\r\t") + 1); 
         if (entrada.empty()) continue;
 
-        std::vector<std::string> tokens = dividir(entrada);
-        std::string comando = tokens[0];
-        std::vector<std::string> params(tokens.begin() + 1, tokens.end());
+        vector<string> tokens = dividir(entrada);
+        string comando = tokens[0];
+        vector<string> params(tokens.begin() + 1, tokens.end());
 
         if (comando == "salir") {
             break;  
@@ -37,11 +40,10 @@ int main() {
             manejador.mostrarAyuda();
         } else if (comando == "ayuda" && params.size() == 1) {
             manejador.mostrarAyudaComando(params[0]);
-       } else if (manejador.validarComando(comando, params)) {
-         std::cout << "Comando " << comando << " válido, pero no implementado en nuestra entrega" << std::endl;
-         std::cout << "Procesamiento completado." << std::endl;
+        } else if (manejador.validarComando(comando, params)) {
+            cout << "Comando " << comando << " válido, pero no implementado en nuestra entrega" << endl;
+            cout << "Procesamiento completado." << endl;
         }
-
     }
 
     return 0;
