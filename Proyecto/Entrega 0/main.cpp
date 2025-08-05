@@ -20,7 +20,7 @@ vector<string> dividir(const string& entrada) {
 int main() {
     ManejadorComandos manejador;
     string entrada;
-    cout << "Bienvenido al programa. Ingrese 'ayuda' para ver los comandos disponibles o 'ayuda <comando>' para detalles." << endl;
+    cout << "Bienvenido a nuestro programa. Ingrese 'ayuda' para ver los comandos disponibles o 'ayuda <comando>' para ver detalles." << endl;
 
     while (true) {
         cout << "$ ";
