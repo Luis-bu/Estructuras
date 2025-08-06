@@ -8,7 +8,7 @@
 
 using namespace std;
 
-// Definición de la estructura Comando
+// Estructura para representar un comando
 struct Comando {
     string nombre;
     int numParametros;
@@ -21,6 +21,8 @@ private:
     vector<Comando> comandos;
 
 public:
+    // Constructor que define los comandos disponibles
+    // tienen estructura: nombre, número de parámetros y un texto de ayuda
     ManejadorComandos() {
         comandos.push_back(Comando{"ayuda", 0, "ayuda: Lista todos los comandos disponibles.\nayuda <comando>: Muestra la ayuda para un comando específico."});
         comandos.push_back(Comando{"ayuda_comando", 1, ""});
@@ -37,7 +39,7 @@ public:
         comandos.push_back(Comando{"salir", 0, "salir: Termina la ejecución del programa."});
     }
 
-    // Verifica si una cadena es un entero válido
+    // Verifica si una cadena es un entero
     bool esEntero(const string& str) {
         istringstream iss(str);
         int n;

@@ -5,6 +5,8 @@
 
 using namespace std; 
 
+// Función para dividir una cadena en tokens
+// La Utilizamos para separar el comando y sus parámetros
 vector<string> dividir(const string& entrada) {
     vector<string> tokens;
     stringstream ss(entrada);
