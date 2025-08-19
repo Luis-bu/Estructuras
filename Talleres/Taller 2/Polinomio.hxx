@@ -67,21 +67,26 @@ Polinomio<S> Polinomio<S>::operator*( const Polinomio< S >& der ) const
   unsigned int tamIzq = (unsigned int)this->size();
   unsigned int tamDer = (unsigned int)der.size();
 
+  // si alguno de los dos polinomios está vacío, el producto también lo estará
   if (tamIzq == 0 || tamDer == 0)
     return resultado; // vacío
 
+  // el tamaño del resultado es la suma de los tamaños menos 1 (regla de grados)
   unsigned int tamRes = tamIzq + tamDer - 1;
   resultado.resize(tamRes, S(0));
 
+  // aquí hacemos la multiplicación de "cada con cada"
   for (unsigned int i = 0; i < tamIzq; ++i)
   {
     for (unsigned int j = 0; j < tamDer; ++j)
     {
+      // sumamos en la posición que corresponde
       resultado[i + j] += (*this)[i] * der[j];
     }
   }
-
-  return resultado; // devolver por valor
+  
+  // devolvemos el polinomio que nos queda al final
+  return resultado; 
 }
 
 // -------------------------------------------------------------------------
