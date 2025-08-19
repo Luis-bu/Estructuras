@@ -90,18 +90,20 @@ Polinomio<S> Polinomio<S>::operator*( const Polinomio< S >& der ) const
 }
 
 // -------------------------------------------------------------------------
-// EVALUACIÓN
+// EVALUAR POLINOMIO (usamos el método de Horner)
 template < class S > 
 S Polinomio<S>::operator()( const S& x ) const
 {
-  S resultado = S( 0 );
-  int n = (int)this->size();
+  S resultado = S( 0 );  // aquí vamos guardando el valor final
+  int n = (int)this->size();  // tamaño del polinomio (es el número de coeficientes)
 
+  // recorremos desde el coeficiente de mayor grado hasta el de menor
   for (int i = n - 1; i >= 0; --i)
   {
+    // método de Horner: multiplicamos lo acumulado por x y sumamos el coeficiente
     resultado = resultado * x + (*this)[ (unsigned int)i ];
   }
-
+  // devolvemos el valor calculado
   return resultado;
 }
 
