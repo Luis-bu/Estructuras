@@ -36,8 +36,13 @@ int main() {
         string comando = tokens[0];
         vector<string> params(tokens.begin() + 1, tokens.end());
 
-        if (comando == "salir") {
+        
+        if (comando == "salir" && params.empty()) {
             break;  
+        } else if (comando == "salir" && !params.empty()) {
+            cout << "El comando 'salir' no acepta parámetros." << endl;
+            continue;
+        }
         } else if (comando == "ayuda" && params.empty()) {
             manejador.mostrarAyuda();
         } else if (comando == "ayuda" && params.size() == 1) {
