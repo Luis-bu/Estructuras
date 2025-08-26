@@ -60,7 +60,7 @@ private:
         return count;
     }
 
-    // Orden de códigos
+    // Orden de codificación
     vector<char> getOrden() {
         vector<char> orden;
         orden.push_back('A');
@@ -87,6 +87,8 @@ private:
 public:
 
     // Constructor que define los comandos disponibles
+    // Como retroalimentación de la entrega 0, añadimos un pequeño ejemplo para cada comando para facilitar su comprensión
+    // Estan de la forma: <nombre_comando> <num_parametros> <ayuda_y_ejemplo>
     ManejadorComandos() {
         comandos.push_back(Comando{"ayuda", 0, "ayuda: Lista todos los comandos disponibles.\nayuda <comando>: Muestra la ayuda para un comando específico.\nEjemplo: ayuda cargar"});
         comandos.push_back(Comando{"ayuda_comando", 1, "ayuda_comando <comando>: Muestra la ayuda detallada de un comando.\nEjemplo: ayuda_comando cargar"});
@@ -120,6 +122,7 @@ public:
                  << comando.textoAyuda << endl;
             return false;
         }
+        // Validamos parámetros específicos
         if (cmd == "ruta_mas_corta" && params.size() == 5) {
             for (int i = 1; i <= 4; ++i) {
                 if (!esEntero(params[i])) {
@@ -127,6 +130,7 @@ public:
                     return false;
                 }
             }
+        // Validamos parámetros específicos
         } else if (cmd == "base_remota" && params.size() == 3) {
             for (int i = 1; i <= 2; ++i) {
                 if (!esEntero(params[i])) {
@@ -147,11 +151,13 @@ public:
                 cout << params[0] << " no se encuentra o no puede leerse." << endl;
                 return;
             }
-            secuencias.clear(); // Sobrescribe datos previos
+            // Sobrescribimos los datos previos
+            secuencias.clear(); 
             string linea;
             string nombre = "";
             string secuencia = "";
             while (getline(archivo, linea)) {
+                // '>' Indica el nombre e inicio de la subsecuencia
                 if (linea[0] == '>') {
                     if (!nombre.empty()) {
                         secuencias.push_back(make_pair(nombre, secuencia));
@@ -167,8 +173,11 @@ public:
             }
             archivo.close();
             int n = static_cast<int>(secuencias.size());
+            // Informamos sobre el resultado de la carga
+            // Si esta vacia, informamos que no se cargaron secuencias
             if (n == 0) {
                 cout << params[0] << " no contiene ninguna secuencia." << endl;
+            // Si no, informamos cuántas secuencias se cargaron
             } else {
                 cout << n << " secuencia" << (n > 1 ? "s" : "") << " cargada" << (n > 1 ? "s" : "") << " correctamente desde " << params[0] << "." << endl;
             }
