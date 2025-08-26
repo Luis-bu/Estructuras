@@ -43,7 +43,7 @@ int main() {
             cout << "El comando 'salir' no acepta parámetros." << endl;
             continue;
         }
-        } else if (comando == "ayuda" && params.empty()) {
+        else if (comando == "ayuda" && params.empty()) {
             manejador.mostrarAyuda();
         } else if (comando == "ayuda" && params.size() == 1) {
             manejador.mostrarAyudaComando(params[0]);
