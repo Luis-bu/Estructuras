@@ -1,9 +1,9 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "comandos.h"
+#include "sistema.h"
 
-using namespace std; 
+using namespace std;
 
 // Función para dividir una cadena en tokens
 vector<string> dividir(const string& entrada) {
@@ -18,7 +18,7 @@ vector<string> dividir(const string& entrada) {
 
 // Nuestro programa principal
 int main() {
-    ManejadorComandos manejador;
+    Sistema sistema;
     string entrada;
     cout << "Bienvenido a nuestro programa. Ingrese 'ayuda' para ver los comandos disponibles o 'ayuda <comando>' para ver detalles." << endl;
 
@@ -39,11 +39,11 @@ int main() {
             cout << "El comando 'salir' no acepta parámetros." << endl;
             continue;
         } else if (comando == "ayuda" && params.empty()) {
-            manejador.mostrarAyuda();
+            sistema.mostrarAyuda();
         } else if (comando == "ayuda" && params.size() == 1) {
-            manejador.mostrarAyudaComando(params[0]);
-        } else if (manejador.validarComando(comando, params)) {
-            manejador.ejecutarComando(comando, params);
+            sistema.mostrarAyudaComando(params[0]);
+        } else {
+            sistema.ejecutarComando(comando, params);
         }
     }
 
