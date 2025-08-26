@@ -17,11 +17,11 @@ struct Comando {
     string textoAyuda;
 };
 
-// Clase para gestionar los comandos del programa
+// Clase para gestionar los comandos de nuestro programa
 class ManejadorComandos {
 private:
     vector<Comando> comandos;
-    vector<pair<string, string> > secuencias; // Nombre y secuencia (estructura lineal)
+    vector<pair<string, string> > secuencias; // Nombre y secuencia
 
     // Verifica si una cadena es un entero
     bool esEntero(const string& str) {
@@ -60,8 +60,8 @@ private:
         return count;
     }
 
-    // Orden de códigos según Tabla 1
-    vector<char> getOrdenTabla1() {
+    // Orden de códigos
+    vector<char> getOrden() {
         vector<char> orden;
         orden.push_back('A');
         orden.push_back('C');
@@ -85,6 +85,7 @@ private:
     }
 
 public:
+
     // Constructor que define los comandos disponibles
     ManejadorComandos() {
         comandos.push_back(Comando{"ayuda", 0, "ayuda: Lista todos los comandos disponibles.\nayuda <comando>: Muestra la ayuda para un comando específico.\nEjemplo: ayuda cargar"});
@@ -108,10 +109,12 @@ public:
         if (cmd == "ayuda" && params.size() == 1) {
             return buscarComando("ayuda_comando", comando);
         }
+        // Verificamos si el comando existe
         if (!buscarComando(cmd, comando)) {
             cout << "Comando inválido: " << cmd << endl;
             return false;
         }
+        // Verificamos el número de parámetros
         if (comando.numParametros != static_cast<int>(params.size())) {
             cout << "Número incorrecto de parámetros para " << cmd << ". Formato: " 
                  << comando.textoAyuda << endl;
@@ -135,9 +138,10 @@ public:
         return true;
     }
 
-    // Ejecutar comandos
+    // Ejecutar los comandos
     void ejecutarComando(const string& cmd, const vector<string>& params) {
-        if (cmd == "cargar" && params.size() == 1) {
+        // Cargar secuencias desde un archivo
+                if (cmd == "cargar" && params.size() == 1) {
             ifstream archivo(params[0].c_str());
             if (!archivo) {
                 cout << params[0] << " no se encuentra o no puede leerse." << endl;
@@ -145,12 +149,21 @@ public:
             }
             secuencias.clear(); // Sobrescribe datos previos
             string linea;
+            string nombre = "";
+            string secuencia = "";
             while (getline(archivo, linea)) {
                 if (linea[0] == '>') {
-                    string nombre = linea.substr(1);
-                    string secuencia = cargarSecuencia(archivo);
-                    secuencias.push_back(make_pair(nombre, secuencia));
+                    if (!nombre.empty()) {
+                        secuencias.push_back(make_pair(nombre, secuencia));
+                    }
+                    nombre = linea.substr(1);
+                    secuencia = "";
+                } else {
+                    secuencia += linea;
                 }
+            }
+            if (!nombre.empty()) {
+                secuencias.push_back(make_pair(nombre, secuencia));
             }
             archivo.close();
             int n = static_cast<int>(secuencias.size());
@@ -159,6 +172,8 @@ public:
             } else {
                 cout << n << " secuencia" << (n > 1 ? "s" : "") << " cargada" << (n > 1 ? "s" : "") << " correctamente desde " << params[0] << "." << endl;
             }
+        
+            // Mostrar las secuencias cargadas
         } else if (cmd == "listar_secuencias" && params.empty()) {
             if (secuencias.empty()) {
                 cout << "No hay secuencias cargadas en memoria." << endl;
@@ -169,12 +184,13 @@ public:
                     cout << "Secuencia " << secuencias[i].first << " contiene " << (secuencias[i].second.find('-') != string::npos ? "al menos " : "") << bases << " base" << (bases > 1 ? "s" : "") << "." << endl;
                 }
             }
+            // Mostrar el histograma
         } else if (cmd == "histograma" && params.size() == 1) {
             bool found = false;
             for (unsigned int i = 0; i < secuencias.size(); ++i) {
                 if (secuencias[i].first == params[0]) {
                     found = true;
-                    vector<char> orden = getOrdenTabla1();
+                    vector<char> orden = getOrden();
                     for (unsigned int j = 0; j < orden.size(); ++j) {
                         int freq = 0;
                         for (unsigned int k = 0; k < secuencias[i].second.length(); ++k) {
@@ -205,6 +221,7 @@ public:
                     cout << "La subsecuencia dada se repite " << count << " veces dentro de las secuencias cargadas en memoria." << endl;
                 }
             }
+            // Enmascarar subsecuencia
         } else if (cmd == "enmascarar" && params.size() == 1) {
             if (secuencias.empty()) {
                 cout << "No hay secuencias cargadas en memoria." << endl;
@@ -225,6 +242,7 @@ public:
                     cout << count << " subsecuencia" << (count > 1 ? "s" : "") << " han sido enmascarada" << (count > 1 ? "s" : "") << " dentro de las secuencias cargadas en memoria." << endl;
                 }
             }
+            // Guardar secuencias en un archivo
         } else if (cmd == "guardar" && params.size() == 1) {
             if (secuencias.empty()) {
                 cout << "No hay secuencias cargadas en memoria." << endl;
