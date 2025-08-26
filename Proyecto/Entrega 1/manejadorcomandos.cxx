@@ -228,16 +228,13 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
         //Resto de comandos sin implementar
     } else if (cmd == "codificar" && params.size() == 1) {
         cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
-        cout << "Procesamiento completado." << endl;
     } else if (cmd == "decodificar" && params.size() == 1) {
         cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
-        cout << "Procesamiento completado." << endl;
     } else if (cmd == "ruta_mas_corta" && params.size() == 5) {
         cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
-        cout << "Procesamiento completado." << endl;
     } else if (cmd == "base_remota" && params.size() == 3) {
         cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
-        cout << "Procesamiento completado." << endl;
+        
     }
 }
 

@@ -45,6 +45,9 @@ int main() {
         } else {
             sistema.ejecutarComando(comando, params);
         }
+
+        cout << "Procesamiento completado." << endl;
+        cout << "--------------------------------------------" << endl;
     }
 
     return 0;
