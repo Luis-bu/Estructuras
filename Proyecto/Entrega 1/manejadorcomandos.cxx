@@ -106,6 +106,7 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
         return;
     }
 
+    // Cargamos una secuencia desde un archivo
     if (cmd == "cargar" && params.size() == 1) {
         ifstream archivo(params[0].c_str());
         if (!archivo) {
@@ -137,6 +138,7 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
         } else {
             cout << n << " secuencia" << (n > 1 ? "s" : "") << " cargada" << (n > 1 ? "s" : "") << " correctamente desde " << params[0] << "." << endl;
         }
+        // Mostramos las secuencias cargadas
     } else if (cmd == "listar_secuencias" && params.empty()) {
         if (secuencias.empty()) {
             cout << "No hay secuencias cargadas en memoria." << endl;
@@ -147,6 +149,7 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
                 cout << "Secuencia " << secuencias[i].getNombre() << " contiene " << (secuencias[i].getBases().find('-') != string::npos ? "al menos " : "") << bases << " base" << (bases > 1 ? "s" : "") << "." << endl;
             }
         }
+        // Mostramos las secuencias cargadas
     } else if (cmd == "histograma" && params.size() == 1) {
         bool found = false;
         for (unsigned int i = 0; i < secuencias.size(); ++i) {
@@ -165,6 +168,8 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
             }
         }
         if (!found) cout << "Secuencia inválida." << endl;
+
+        // Mostramos el histograma para una secuencia válida
     } else if (cmd == "es_subsecuencia" && params.size() == 1) {
         if (secuencias.empty()) {
             cout << "No hay secuencias cargadas en memoria." << endl;
@@ -180,26 +185,28 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
                 cout << "La subsecuencia dada se repite " << count << " veces dentro de las secuencias cargadas en memoria." << endl;
             }
         }
+        // Enmascaramos la subsecuencia en todas las secuencias
     } else if (cmd == "enmascarar" && params.size() == 1) {
     if (secuencias.empty()) {
         cout << "No hay secuencias cargadas en memoria." << endl;
     } else {
-        int count = 0;
-        string sub = params[0];
-        for (unsigned int i = 0; i < secuencias.size(); ++i) {
-            int antes = secuencias[i].buscarSubsecuencia(sub); // Contar antes de enmascarar
-            if (antes > 0) {
-                secuencias[i].enmascararSubsecuencia(sub);
-                count += antes; // Sumar las ocurrencias iniciales
+            int count = 0;
+            string sub = params[0];
+            for (unsigned int i = 0; i < secuencias.size(); ++i) {
+                int antes = secuencias[i].buscarSubsecuencia(sub);
+                if (antes > 0) {
+                    secuencias[i].enmascararSubsecuencia(sub);
+                    count += antes; 
+                }
+            }
+            if (count == 0) {
+                cout << "La subsecuencia dada no existe dentro de las secuencias cargadas en memoria, por tanto no se enmascara nada." << endl;
+            } else {
+                cout << count << " subsecuencia" << (count > 1 ? "s" : "") << " han sido enmascarada" << (count > 1 ? "s" : "") << " dentro de las secuencias cargadas en memoria." << endl;
             }
         }
-        if (count == 0) {
-            cout << "La subsecuencia dada no existe dentro de las secuencias cargadas en memoria, por tanto no se enmascara nada." << endl;
-        } else {
-            cout << count << " subsecuencia" << (count > 1 ? "s" : "") << " han sido enmascarada" << (count > 1 ? "s" : "") << " dentro de las secuencias cargadas en memoria." << endl;
-        }
-    }
-} else if (cmd == "guardar" && params.size() == 1) {
+        // Guardamos las secuencias en un archivo
+    } else if (cmd == "guardar" && params.size() == 1) {
         if (secuencias.empty()) {
             cout << "No hay secuencias cargadas en memoria." << endl;
         } else {
@@ -218,6 +225,7 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
                 cout << "Las secuencias han sido guardadas en " << params[0] << "." << endl;
             }
         }
+        //Resto de comandos sin implementar
     } else if (cmd == "codificar" && params.size() == 1) {
         cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
         cout << "Procesamiento completado." << endl;
@@ -233,6 +241,7 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
     }
 }
 
+// Función para mostrar la ayuda de los comandos
 void ManejadorComandos::mostrarAyuda() {
     cout << "Comandos disponibles:" << endl;
     for (unsigned int i = 0; i < comandos.size(); ++i) {
@@ -242,6 +251,7 @@ void ManejadorComandos::mostrarAyuda() {
     }
 }
 
+// Función para mostrar la ayuda de un comando específico
 void ManejadorComandos::mostrarAyudaComando(const string& cmd) {
     Comando comando;
     if (buscarComando(cmd, comando) && cmd != "ayuda_comando") {

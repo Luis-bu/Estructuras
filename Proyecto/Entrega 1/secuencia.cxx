@@ -12,6 +12,7 @@ int Secuencia::contarBases() const {
     return count;
 }
 
+// Buscamos una subsecuencia en la secuencia
 int Secuencia::buscarSubsecuencia(const string& sub) const {
     int count = 0;
     size_t pos = 0;
@@ -22,6 +23,7 @@ int Secuencia::buscarSubsecuencia(const string& sub) const {
     return count;
 }
 
+// Enmascaramos una subsecuencia en la secuencia
 void Secuencia::enmascararSubsecuencia(const string& sub) {
     size_t pos = 0;
     while ((pos = bases.find(sub, pos)) != string::npos) {
@@ -30,6 +32,7 @@ void Secuencia::enmascararSubsecuencia(const string& sub) {
     }
 }
 
+// Getters y Setters
 string Secuencia::getNombre() const { return nombre; }
 string Secuencia::getBases() const { return bases; }
 void Secuencia::setBases(const string& b) { bases = b; }

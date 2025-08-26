@@ -7,6 +7,7 @@
 
 using namespace std;
 
+// Clase que representa el sistema
 class Sistema {
 private:
     ManejadorComandos manejador;

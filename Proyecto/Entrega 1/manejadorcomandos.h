@@ -15,7 +15,7 @@ struct Comando {
     string textoAyuda;
 };
 
-// Definición de la clase ManejadorComandos
+// Clase que maneja los comandos
 class ManejadorComandos {
 private:
     vector<Comando> comandos;

@@ -5,6 +5,7 @@
 
 using namespace std;
 
+// Clase que representa una secuencia
 class Secuencia {
 private:
     string nombre;
