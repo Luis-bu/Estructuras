@@ -5,31 +5,15 @@
 
 using namespace std;
 
-// Verifica si una cadena es un entero
+// Verificamos si una cadena es un entero
 bool ManejadorComandos::esEntero(const string& str) {
     istringstream iss(str);
     int n;
     return (iss >> n) && iss.eof();
 }
 
-string ManejadorComandos::cargarSecuencia(ifstream& archivo) {
-    string secuencia = "";
-    string linea;
-    while (getline(archivo, linea) && linea[0] != '>') {
-        secuencia += linea;
-    }
-    return secuencia;
-}
-
-int ManejadorComandos::contarBases(const string& secuencia) {
-    int count = 0;
-    for (unsigned int i = 0; i < secuencia.length(); ++i) {
-        if (secuencia[i] != '-') count++;
-    }
-    return count;
-}
-
-vector<char> ManejadorComandos::getOrdenTabla1() {
+// Obtenemos el orden de las bases
+vector<char> ManejadorComandos::getOrden() {
     vector<char> orden;
     orden.push_back('A');
     orden.push_back('C');
@@ -52,6 +36,7 @@ vector<char> ManejadorComandos::getOrdenTabla1() {
     return orden;
 }
 
+// Buscamos un comando en base a su nombre
 bool ManejadorComandos::buscarComando(const string& cmd, Comando& comando) const {
     for (unsigned int i = 0; i < comandos.size(); ++i) {
         if (comandos[i].nombre == cmd) {
@@ -62,6 +47,9 @@ bool ManejadorComandos::buscarComando(const string& cmd, Comando& comando) const
     return false;
 }
 
+// Constructor
+// Los comandos estan en formato: <nombre_comando> <parametros> <ayuda_y_ejemplo> 
+// Ahora los comandos tienen un ejemplo para ofrecer al usuario una mejor comprensión de su uso.
 ManejadorComandos::ManejadorComandos() {
     comandos.push_back(Comando{"ayuda", 0, "ayuda: Lista todos los comandos disponibles.\nayuda <comando>: Muestra la ayuda para un comando específico.\nEjemplo: ayuda cargar"});
     comandos.push_back(Comando{"ayuda_comando", 1, "ayuda_comando <comando>: Muestra la ayuda detallada de un comando.\nEjemplo: ayuda_comando cargar"});
@@ -78,6 +66,7 @@ ManejadorComandos::ManejadorComandos() {
     comandos.push_back(Comando{"salir", 0, "salir: Termina la ejecución del programa.\nEjemplo: salir"});
 }
 
+// Validamos un comando y sus parámetros
 bool ManejadorComandos::validarComando(const string& cmd, const vector<string>& params) {
     Comando comando;
     if (cmd == "ayuda" && params.size() == 1) {
@@ -110,9 +99,11 @@ bool ManejadorComandos::validarComando(const string& cmd, const vector<string>& 
     return true;
 }
 
+// Función para ejecutar un comando
+// Estos se ejecutan si la validación es exitosa
 void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>& params) {
     if (!validarComando(cmd, params)) {
-        return; // Si la validación falla, no ejecuta el comando
+        return;
     }
 
     if (cmd == "cargar" && params.size() == 1) {
@@ -121,7 +112,7 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
             cout << params[0] << " no se encuentra o no puede leerse." << endl;
             return;
         }
-        secuencias.clear(); // Sobrescribe datos previos
+        secuencias.clear();
         string linea;
         string nombre = "";
         string secuencia = "";
@@ -161,7 +152,7 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
         for (unsigned int i = 0; i < secuencias.size(); ++i) {
             if (secuencias[i].getNombre() == params[0]) {
                 found = true;
-                vector<char> orden = getOrdenTabla1();
+                vector<char> orden = getOrden();
                 for (unsigned int j = 0; j < orden.size(); ++j) {
                     int freq = 0;
                     string bases = secuencias[i].getBases();

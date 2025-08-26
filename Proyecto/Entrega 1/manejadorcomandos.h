@@ -22,9 +22,7 @@ private:
     vector<Secuencia> secuencias;
 
     bool esEntero(const string& str);
-    string cargarSecuencia(ifstream& archivo);
-    int contarBases(const string& secuencia);
-    vector<char> getOrdenTabla1();
+    vector<char> getOrden();
     bool buscarComando(const string& cmd, Comando& comando) const;
 
 public:
