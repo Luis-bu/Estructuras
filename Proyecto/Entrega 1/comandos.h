@@ -145,7 +145,7 @@ public:
     // Ejecutar los comandos
     void ejecutarComando(const string& cmd, const vector<string>& params) {
         // Cargar secuencias desde un archivo
-                if (cmd == "cargar" && params.size() == 1) {
+        if (cmd == "cargar" && params.size() == 1) {
             ifstream archivo(params[0].c_str());
             if (!archivo) {
                 cout << params[0] << " no se encuentra o no puede leerse." << endl;
@@ -196,10 +196,12 @@ public:
             // Mostrar el histograma
         } else if (cmd == "histograma" && params.size() == 1) {
             bool found = false;
+            // Buscar la secuencia
             for (unsigned int i = 0; i < secuencias.size(); ++i) {
                 if (secuencias[i].first == params[0]) {
                     found = true;
                     vector<char> orden = getOrden();
+                    // Contar la frecuencia de cada una de las bases
                     for (unsigned int j = 0; j < orden.size(); ++j) {
                         int freq = 0;
                         for (unsigned int k = 0; k < secuencias[i].second.length(); ++k) {
@@ -210,11 +212,15 @@ public:
                     break;
                 }
             }
+            // Si no se encontró la secuencia, informamos
             if (!found) cout << "Secuencia inválida." << endl;
         } else if (cmd == "es_subsecuencia" && params.size() == 1) {
+            // Verificar si hay secuencias cargadas
             if (secuencias.empty()) {
                 cout << "No hay secuencias cargadas en memoria." << endl;
-            } else {
+            } 
+            // Si hay secuencias cargadas, buscamos la subsecuencia
+            else {
                 int count = 0;
                 string sub = params[0];
                 for (unsigned int i = 0; i < secuencias.size(); ++i) {
@@ -224,9 +230,12 @@ public:
                         pos++;
                     }
                 }
+                // Informar si no se encontró la subsecuencia
                 if (count == 0) {
                     cout << "La subsecuencia dada no existe dentro de las secuencias cargadas en memoria." << endl;
-                } else {
+                } 
+                // Si se encontró la subsecuencia, informamos cuántas veces se repite
+                else {
                     cout << "La subsecuencia dada se repite " << count << " veces dentro de las secuencias cargadas en memoria." << endl;
                 }
             }
@@ -237,17 +246,22 @@ public:
             } else {
                 int count = 0;
                 string sub = params[0];
+                // Buscar la subsecuencia
                 for (unsigned int i = 0; i < secuencias.size(); ++i) {
                     size_t pos = 0;
+                    // Reemplazar todas las ocurrencias de la subsecuencia por 'X'
                     while ((pos = secuencias[i].second.find(sub, pos)) != string::npos) {
                         secuencias[i].second.replace(pos, sub.length(), string(sub.length(), 'X'));
                         count++;
                         pos += sub.length();
                     }
                 }
+                // Informamos si no se encontró la subsecuencia
                 if (count == 0) {
                     cout << "La subsecuencia dada no existe dentro de las secuencias cargadas en memoria, por tanto no se enmascara nada." << endl;
-                } else {
+                }
+                // Si se encontró la subsecuencia, informamos cuántas veces se repite
+                else {
                     cout << count << " subsecuencia" << (count > 1 ? "s" : "") << " han sido enmascarada" << (count > 1 ? "s" : "") << " dentro de las secuencias cargadas en memoria." << endl;
                 }
             }
@@ -257,9 +271,11 @@ public:
                 cout << "No hay secuencias cargadas en memoria." << endl;
             } else {
                 ofstream archivo(params[0].c_str());
+                // Si no se pudo abrir el archivo, informamos
                 if (!archivo) {
                     cout << "Error guardando en " << params[0] << "." << endl;
                 } else {
+                    // Guardar las secuencias en el archivo
                     for (unsigned int i = 0; i < secuencias.size(); ++i) {
                         archivo << ">" << secuencias[i].first << endl;
                         for (unsigned int j = 0; j < secuencias[i].second.length(); j += 70) {
@@ -270,8 +286,19 @@ public:
                     cout << "Las secuencias han sido guardadas en " << params[0] << "." << endl;
                 }
             }
+        } else if (cmd == "codificar" && params.size() == 1) {
+            cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
+            cout << "Procesamiento completado." << endl;
+        } else if (cmd == "decodificar" && params.size() == 1) {
+            cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
+            cout << "Procesamiento completado." << endl;
+        } else if (cmd == "ruta_mas_corta" && params.size() == 5) {
+            cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
+            cout << "Procesamiento completado." << endl;
+        } else if (cmd == "base_remota" && params.size() == 3) {
+            cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
+            cout << "Procesamiento completado." << endl;
         }
-        cout << "Procesamiento completado." << endl;
     }
 
     // Mostrar todos los comandos
