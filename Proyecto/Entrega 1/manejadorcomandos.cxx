@@ -220,8 +220,9 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
             }
         }
         // Guardamos las secuencias en un archivo
-    } else if (cmd == "guardar" && params.size() == 1) {
+       } else if (cmd == "guardar" && params.size() == 1) {
         if (secuencias.empty()) {
+            // Inf
             cout << "No hay secuencias cargadas en memoria." << endl;
         } else {
             ofstream archivo(params[0].c_str());
@@ -231,9 +232,18 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
                 for (unsigned int i = 0; i < secuencias.size(); ++i) {
                     archivo << ">" << secuencias[i].getNombre() << endl;
                     string bases = secuencias[i].getBases();
-                    for (unsigned int j = 0; j < bases.length(); j += 70) {
-                        // Escribimos en el archivo en bloques de 70 caracteres
-                        archivo << bases.substr(j, 70) << endl;
+                    size_t pos = 0;
+                    // Conservamos el ancho original de las líneas
+                    while (pos < bases.length()) {
+                        size_t nextPos = bases.find('\n', pos);
+                        if (nextPos == string::npos) {
+                            nextPos = bases.length();
+                        }
+                        size_t lineLength = nextPos - pos;
+                        if (pos > 0 || lineLength > 0) {
+                            archivo << bases.substr(pos, lineLength) << endl;
+                        }
+                        pos = nextPos + 1;
                     }
                 }
                 // Informamos que las secuencias han sido guardadas
