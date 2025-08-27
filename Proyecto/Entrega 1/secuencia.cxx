@@ -1,7 +1,7 @@
 #include "secuencia.h"
 
 // Constructor
-Secuencia::Secuencia(const string& n, const string& b) : nombre(n), bases(b) {}
+Secuencia::Secuencia(const string& n, const string& b, size_t ll) : nombre(n), bases(b), lineLength(ll) {}
 
 // Contamos las bases en una secuencia
 int Secuencia::contarBases() const {
@@ -36,3 +36,4 @@ void Secuencia::enmascararSubsecuencia(const string& sub) {
 string Secuencia::getNombre() const { return nombre; }
 string Secuencia::getBases() const { return bases; }
 void Secuencia::setBases(const string& b) { bases = b; }
+size_t Secuencia::getLineLength() const { return lineLength; }

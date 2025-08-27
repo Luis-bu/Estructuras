@@ -6,8 +6,6 @@
 #include <fstream>
 #include "secuencia.h"
 
-using namespace std;
-
 // Estructura que representa un comando
 struct Comando {
     string nombre;
@@ -21,12 +19,11 @@ private:
     vector<Comando> comandos;
     vector<Secuencia> secuencias;
 
+public:
+    ManejadorComandos();
     bool esEntero(const string& str);
     vector<char> getOrden();
     bool buscarComando(const string& cmd, Comando& comando) const;
-
-public:
-    ManejadorComandos();
     bool validarComando(const string& cmd, const vector<string>& params);
     void ejecutarComando(const string& cmd, const vector<string>& params);
     void mostrarAyuda();

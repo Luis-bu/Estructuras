@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -119,24 +120,28 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
         string linea;
         string nombre = "";
         string secuencia = "";
+        size_t lineLength = 0; 
         while (getline(archivo, linea)) {
             if (linea[0] == '>') {
                 if (!nombre.empty()) {
-                    secuencias.push_back(Secuencia(nombre, secuencia));
+                    secuencias.push_back(Secuencia(nombre, secuencia, lineLength));
                 }
                 nombre = linea.substr(1);
                 secuencia = "";
+                lineLength = 0;
             } else {
-                secuencia += linea;
+                if (!linea.empty()) {
+                    secuencia += linea;
+                    if (lineLength == 0 && linea.length() > 0) lineLength = linea.length(); // Establecemos el ancho original
+                }
             }
         }
         if (!nombre.empty()) {
-            secuencias.push_back(Secuencia(nombre, secuencia));
+            secuencias.push_back(Secuencia(nombre, secuencia, lineLength));
         }
         archivo.close();
         int n = static_cast<int>(secuencias.size());
         if (n == 0) {
-            // Informamos que no se cargaron secuencias
             cout << params[0] << " no contiene ninguna secuencia." << endl;
         } else {
             // Informamos cuántas secuencias se cargaron
@@ -220,9 +225,9 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
             }
         }
         // Guardamos las secuencias en un archivo
-       } else if (cmd == "guardar" && params.size() == 1) {
+    } else if (cmd == "guardar" && params.size() == 1) {
         if (secuencias.empty()) {
-            // Inf
+            // Informamos si no hay secuencias cargadas
             cout << "No hay secuencias cargadas en memoria." << endl;
         } else {
             ofstream archivo(params[0].c_str());
@@ -232,18 +237,10 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
                 for (unsigned int i = 0; i < secuencias.size(); ++i) {
                     archivo << ">" << secuencias[i].getNombre() << endl;
                     string bases = secuencias[i].getBases();
-                    size_t pos = 0;
-                    // Conservamos el ancho original de las líneas
-                    while (pos < bases.length()) {
-                        size_t nextPos = bases.find('\n', pos);
-                        if (nextPos == string::npos) {
-                            nextPos = bases.length();
-                        }
-                        size_t lineLength = nextPos - pos;
-                        if (pos > 0 || lineLength > 0) {
-                            archivo << bases.substr(pos, lineLength) << endl;
-                        }
-                        pos = nextPos + 1;
+                    size_t lineLength = secuencias[i].getLineLength();
+                    for (unsigned int j = 0; j < bases.length(); j += lineLength) {
+                        size_t length = min(lineLength, bases.length() - j);
+                        archivo << bases.substr(j, length) << endl;
                     }
                 }
                 // Informamos que las secuencias han sido guardadas
