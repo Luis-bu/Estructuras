@@ -20,6 +20,7 @@ vector<string> dividir(const string& entrada) {
 int main() {
     Sistema sistema;
     string entrada;
+    cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
     cout << "Bienvenido a nuestro programa. Ingrese 'ayuda' para ver los comandos disponibles o 'ayuda <comando>' para ver detalles." << endl;
 
     while (true) {
@@ -46,8 +47,9 @@ int main() {
             sistema.ejecutarComando(comando, params);
         }
 
-        cout << "Procesamiento completado." << endl;
-        cout << "--------------------------------------------" << endl;
+        
+        cout << "\nProcesamiento completado." << endl;
+        cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
     }
 
     return 0;
