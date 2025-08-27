@@ -109,10 +109,12 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
     // Cargamos una secuencia desde un archivo
     if (cmd == "cargar" && params.size() == 1) {
         ifstream archivo(params[0].c_str());
+        // Verificamos si el archivo se abrió correctamente
         if (!archivo) {
             cout << params[0] << " no se encuentra o no puede leerse." << endl;
             return;
         }
+        // Cargamos las secuencias
         secuencias.clear();
         string linea;
         string nombre = "";
@@ -134,22 +136,26 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
         archivo.close();
         int n = static_cast<int>(secuencias.size());
         if (n == 0) {
+            // Informamos que no se cargaron secuencias
             cout << params[0] << " no contiene ninguna secuencia." << endl;
         } else {
+            // Informamos cuántas secuencias se cargaron
             cout << n << " secuencia" << (n > 1 ? "s" : "") << " cargada" << (n > 1 ? "s" : "") << " correctamente desde " << params[0] << "." << endl;
         }
         // Mostramos las secuencias cargadas
     } else if (cmd == "listar_secuencias" && params.empty()) {
+        // Verificamos si hay secuencias cargadas
         if (secuencias.empty()) {
             cout << "No hay secuencias cargadas en memoria." << endl;
         } else {
+            // Informamos cuántas secuencias hay en memoria
             cout << "Hay " << secuencias.size() << " secuencia" << (secuencias.size() > 1 ? "s" : "") << " cargada" << (secuencias.size() > 1 ? "s" : "") << " en memoria:" << endl;
             for (unsigned int i = 0; i < secuencias.size(); ++i) {
                 int bases = secuencias[i].contarBases();
                 cout << "Secuencia " << secuencias[i].getNombre() << " contiene " << (secuencias[i].getBases().find('-') != string::npos ? "al menos " : "") << bases << " base" << (bases > 1 ? "s" : "") << "." << endl;
             }
         }
-        // Mostramos las secuencias cargadas
+        // Mostrar el histograma para una secuencia válida
     } else if (cmd == "histograma" && params.size() == 1) {
         bool found = false;
         for (unsigned int i = 0; i < secuencias.size(); ++i) {
@@ -167,26 +173,32 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
                 break;
             }
         }
+        // Informamos si no se encontró la secuencia
         if (!found) cout << "Secuencia inválida." << endl;
 
         // Mostramos el histograma para una secuencia válida
     } else if (cmd == "es_subsecuencia" && params.size() == 1) {
+        // Verificamos si hay secuencias cargadas
         if (secuencias.empty()) {
             cout << "No hay secuencias cargadas en memoria." << endl;
         } else {
+            // Contamos las ocurrencias de la subsecuencia en todas las secuencias
             int count = 0;
             string sub = params[0];
             for (unsigned int i = 0; i < secuencias.size(); ++i) {
                 count += secuencias[i].buscarSubsecuencia(sub);
             }
             if (count == 0) {
+                // Informamos que no se encontró la subsecuencia
                 cout << "La subsecuencia dada no existe dentro de las secuencias cargadas en memoria." << endl;
             } else {
+                // Informamos cuántas veces se encontró la subsecuencia
                 cout << "La subsecuencia dada se repite " << count << " veces dentro de las secuencias cargadas en memoria." << endl;
             }
         }
         // Enmascaramos la subsecuencia en todas las secuencias
     } else if (cmd == "enmascarar" && params.size() == 1) {
+        //Informamos si no hay secuencias cargadas
     if (secuencias.empty()) {
         cout << "No hay secuencias cargadas en memoria." << endl;
     } else {
@@ -199,9 +211,11 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
                     count += antes; 
                 }
             }
+            // Informamos si no se enmascaró nada
             if (count == 0) {
                 cout << "La subsecuencia dada no existe dentro de las secuencias cargadas en memoria, por tanto no se enmascara nada." << endl;
             } else {
+                // Informamos cuántas veces se enmascaró la subsecuencia
                 cout << count << " subsecuencia" << (count > 1 ? "s" : "") << " han sido enmascarada" << (count > 1 ? "s" : "") << " dentro de las secuencias cargadas en memoria." << endl;
             }
         }
@@ -218,9 +232,11 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
                     archivo << ">" << secuencias[i].getNombre() << endl;
                     string bases = secuencias[i].getBases();
                     for (unsigned int j = 0; j < bases.length(); j += 70) {
+                        // Escribimos en el archivo en bloques de 70 caracteres
                         archivo << bases.substr(j, 70) << endl;
                     }
                 }
+                // Informamos que las secuencias han sido guardadas
                 archivo.close();
                 cout << "Las secuencias han sido guardadas en " << params[0] << "." << endl;
             }
