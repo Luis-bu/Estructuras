@@ -94,20 +94,6 @@ void Programa::mostrarResultados() {
     cout << "Tiempo RN (std::set): " << tiempoRN << " s\n";
     cout << "Comparacion: "
          << (compararEstructuras() ? "TODOS IGUALES" : "DIFERENTES") << "\n";
-
-    // Mostramos los recorridos directamente
-    cout << "ABB inorden: ";
-    for (int v : inordenABB) cout << setw(6) << setfill('0') << v << " ";
-    cout << "\n";
-
-    cout << "AVL inorden: ";
-    for (int v : inordenAVL) cout << setw(6) << setfill('0') << v << " ";
-    cout << "\n";
-
-    cout << "RN inorden: ";
-    for (int v : inordenRN) cout << setw(6) << setfill('0') << v << " ";
-    cout << "\n";
-
 }
 
 // Limpiamos las estructuras y datos temporales
