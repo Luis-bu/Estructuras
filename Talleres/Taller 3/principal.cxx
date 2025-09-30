@@ -9,11 +9,13 @@
 #include "abb.h"
 #include "avl.h"
 
+// Estructura para guardar cada operación leída del archivo
 struct Operacion {
-    char tipo; // 'A' agregar, 'E' eliminar
+    char tipo; // 'A' = Agregar, 'E' = Eliminar
     int codigo;
 };
 
+// Función que carga las operaciones desde el archivo
 bool leerOperaciones(const char* nombreArchivo, std::vector<Operacion>& ops) {
     std::ifstream in(nombreArchivo);
     if (!in.is_open()) return false;
@@ -32,6 +34,7 @@ bool leerOperaciones(const char* nombreArchivo, std::vector<Operacion>& ops) {
     return true;
 }
 
+// Convierte un std::set en una lista (para comparación inorden)
 void listaDesdeSet(const std::set<int>& s, std::list<int>& salida) {
     salida.clear();
     for (std::set<int>::const_iterator it = s.begin(); it != s.end(); ++it) {
@@ -39,6 +42,7 @@ void listaDesdeSet(const std::set<int>& s, std::list<int>& salida) {
     }
 }
 
+// Compara dos listas para ver si contienen los mismos elementos
 bool listasIguales(const std::list<int>& a, const std::list<int>& b) {
     if (a.size() != b.size()) return false;
     std::list<int>::const_iterator itA = a.begin();
@@ -56,6 +60,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // Leer operaciones desde archivo
     std::vector<Operacion> ops;
     if (!leerOperaciones(argv[1], ops)) {
         std::cerr << "Error al abrir archivo\n";
@@ -66,7 +71,7 @@ int main(int argc, char** argv) {
     AVL avl;
     std::set<int> rn;
 
-    // ABB
+    // Procesar en ABB y medir tiempo
     std::clock_t t0 = std::clock();
     for (size_t i=0;i<ops.size();++i) {
         if (ops[i].tipo=='A') abb.insertar(ops[i].codigo);
@@ -75,7 +80,7 @@ int main(int argc, char** argv) {
     std::clock_t t1 = std::clock();
     double tiempoABB = (t1-t0)/double(CLOCKS_PER_SEC);
 
-    // AVL
+    // Procesar en AVL y medir tiempo
     t0 = std::clock();
     for (size_t i=0;i<ops.size();++i) {
         if (ops[i].tipo=='A') avl.insertar(ops[i].codigo);
@@ -84,7 +89,7 @@ int main(int argc, char** argv) {
     t1 = std::clock();
     double tiempoAVL = (t1-t0)/double(CLOCKS_PER_SEC);
 
-    // RN (set)
+    // Procesar en RN (std::set) y medir tiempo
     t0 = std::clock();
     for (size_t i=0;i<ops.size();++i) {
         if (ops[i].tipo=='A') rn.insert(ops[i].codigo);
@@ -93,12 +98,13 @@ int main(int argc, char** argv) {
     t1 = std::clock();
     double tiempoRN = (t1-t0)/double(CLOCKS_PER_SEC);
 
-    // Comparar
+    // Comparar recorridos inorden
     std::list<int> inABB, inAVL, inRN;
     abb.inorden(inABB);
     avl.inorden(inAVL);
     listaDesdeSet(rn, inRN);
 
+    // Mostrar resultados
     std::cout << "Tiempo ABB: " << tiempoABB << " s\n";
     std::cout << "Tiempo AVL: " << tiempoAVL << " s\n";
     std::cout << "Tiempo RN (std::set): " << tiempoRN << " s\n";

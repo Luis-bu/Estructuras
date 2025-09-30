@@ -3,6 +3,7 @@
 AVL::AVL() : raiz(NULL) {}
 AVL::~AVL() { limpiar(); }
 
+// Libera todos los nodos del árbol
 void AVL::limpiar() {
     limpiarRec(raiz);
     raiz = NULL;
@@ -15,11 +16,13 @@ void AVL::limpiarRec(Nodo* actual) {
     delete actual;
 }
 
+// Calcula la altura de un nodo
 int AVL::alturaDe(Nodo* actual) const {
     if (actual == NULL) return 0;
     return actual->altura;
 }
 
+// Recalcula la altura de un nodo después de inserción/eliminación
 void AVL::actualizarAltura(Nodo* actual) {
     if (actual == NULL) return;
     int hIzq = alturaDe(actual->izq);
@@ -27,11 +30,13 @@ void AVL::actualizarAltura(Nodo* actual) {
     actual->altura = (hIzq > hDer ? hIzq : hDer) + 1;
 }
 
+// Diferencia de alturas entre subárbol izquierdo y derecho
 int AVL::factorBalance(Nodo* actual) const {
     if (actual == NULL) return 0;
     return alturaDe(actual->izq) - alturaDe(actual->der);
 }
 
+// Rotación simple a la derecha
 AVL::Nodo* AVL::rotacionDerecha(Nodo* y) {
     Nodo* x = y->izq;
     Nodo* T2 = x->der;
@@ -45,6 +50,7 @@ AVL::Nodo* AVL::rotacionDerecha(Nodo* y) {
     return x;
 }
 
+// Rotación simple a la izquierda
 AVL::Nodo* AVL::rotacionIzquierda(Nodo* x) {
     Nodo* y = x->der;
     Nodo* T2 = y->izq;
@@ -58,6 +64,7 @@ AVL::Nodo* AVL::rotacionIzquierda(Nodo* x) {
     return y;
 }
 
+// Inserta un valor y reequilibra si es necesario
 bool AVL::insertar(int clave) {
     bool cambiado = false;
     raiz = insertarRec(raiz, clave, cambiado);
@@ -74,7 +81,7 @@ AVL::Nodo* AVL::insertarRec(Nodo* actual, int clave, bool& cambiado) {
     } else if (clave > actual->clave) {
         actual->der = insertarRec(actual->der, clave, cambiado);
     } else {
-        return actual; // duplicado
+        return actual; // clave duplicada
     }
 
     actualizarAltura(actual);
@@ -95,6 +102,7 @@ AVL::Nodo* AVL::insertarRec(Nodo* actual, int clave, bool& cambiado) {
     return actual;
 }
 
+// Verifica si una clave existe
 bool AVL::contiene(int clave) const {
     return contieneRec(raiz, clave);
 }
@@ -106,12 +114,14 @@ bool AVL::contieneRec(Nodo* actual, int clave) const {
     return true;
 }
 
+// Encuentra el nodo mínimo
 AVL::Nodo* AVL::nodoMinimo(Nodo* actual) const {
     Nodo* p = actual;
     while (p != NULL && p->izq != NULL) p = p->izq;
     return p;
 }
 
+// Elimina un valor y reequilibra si es necesario
 bool AVL::eliminar(int clave) {
     bool cambiado = false;
     raiz = eliminarRec(raiz, clave, cambiado);
@@ -129,8 +139,9 @@ AVL::Nodo* AVL::eliminarRec(Nodo* actual, int clave, bool& cambiado) {
     } else if (clave > actual->clave) {
         actual->der = eliminarRec(actual->der, clave, cambiado);
     } else {
+        // Nodo encontrado
         cambiado = true;
-        if (actual->izq == NULL || actual->der == NULL) {
+        if (actual->izq == NULL || actual->der == NULL) { // un hijo o ninguno
             Nodo* tmp = actual->izq ? actual->izq : actual->der;
             if (tmp == NULL) {
                 delete actual;
@@ -140,6 +151,7 @@ AVL::Nodo* AVL::eliminarRec(Nodo* actual, int clave, bool& cambiado) {
                 delete tmp;
             }
         } else {
+            // dos hijos
             Nodo* sucesor = nodoMinimo(actual->der);
             actual->clave = sucesor->clave;
             actual->der = eliminarRec(actual->der, sucesor->clave, cambiado);
@@ -151,7 +163,7 @@ AVL::Nodo* AVL::eliminarRec(Nodo* actual, int clave, bool& cambiado) {
     actualizarAltura(actual);
     int bf = factorBalance(actual);
 
-    // Rebalanceo tras eliminación
+    // Reequilibrar
     if (bf > 1 && factorBalance(actual->izq) >= 0) return rotacionDerecha(actual); // LL
     if (bf > 1 && factorBalance(actual->izq) < 0) { // LR
         actual->izq = rotacionIzquierda(actual->izq);
@@ -166,6 +178,7 @@ AVL::Nodo* AVL::eliminarRec(Nodo* actual, int clave, bool& cambiado) {
     return actual;
 }
 
+// Recorrido en inorden
 void AVL::inorden(std::list<int>& salida) const {
     salida.clear();
     inordenRec(raiz, salida);
