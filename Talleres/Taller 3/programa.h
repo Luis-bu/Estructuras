@@ -24,7 +24,7 @@ public:
 
 private:
     struct Operacion {
-        char tipo;   // 'A' = Agregar, 'E' = Eliminar
+        char tipo; 
         int codigo;
     };
 
