@@ -110,7 +110,6 @@ void Programa::mostrarResultados() {
 
 }
 
-
 // Limpiamos las estructuras y datos temporales
 void Programa::limpiar() {
     abb.limpiar();
