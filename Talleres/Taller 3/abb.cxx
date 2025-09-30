@@ -1,15 +1,16 @@
 #include "abb.h"
+using namespace std;
 
 ABB::ABB() : raiz(NULL) {}
 ABB::~ABB() { limpiar(); }
 
-// Liberamos toda la memoria del árbol
+// Limpiamos todo el árbol y liberamos la memoria
 void ABB::limpiar() {
     limpiarRec(raiz);
     raiz = NULL;
 }
 
-// Recorrido postorden para liberar nodos
+// Recorremos en postorden y liberamos cada nodo
 void ABB::limpiarRec(Nodo* actual) {
     if (actual == NULL) return;
     limpiarRec(actual->izq);
@@ -17,28 +18,28 @@ void ABB::limpiarRec(Nodo* actual) {
     delete actual;
 }
 
-// Inserta una clave en el ABB
+// Insertamos una clave en el ABB
 bool ABB::insertar(int clave) {
     return insertarRec(raiz, clave);
 }
 
-// Inserción recursiva 
+// Insertamos recursivamente (O(log n) en promedio, O(n) en peor caso)
 bool ABB::insertarRec(Nodo*& actual, int clave) {
-    if (actual == NULL) { // caso base: nodo vacío
+    if (actual == NULL) { 
         actual = new Nodo(clave);
         return true;
     }
     if (clave < actual->clave) return insertarRec(actual->izq, clave);
     if (clave > actual->clave) return insertarRec(actual->der, clave);
-    return false; // clave duplicada
+    return false; // ya existe
 }
 
-// Verifica si una clave existe en el árbol
+// Verificamos si una clave está en el ABB
 bool ABB::contiene(int clave) const {
     return contieneRec(raiz, clave);
 }
 
-// Búsqueda recursiva 
+// Buscamos recursivamente una clave
 bool ABB::contieneRec(Nodo* actual, int clave) const {
     if (actual == NULL) return false;
     if (clave < actual->clave) return contieneRec(actual->izq, clave);
@@ -46,38 +47,35 @@ bool ABB::contieneRec(Nodo* actual, int clave) const {
     return true;
 }
 
-// Busca el nodo con el valor mínimo en un subárbol
+// Obtenemos el nodo con la clave mínima de un subárbol
 ABB::Nodo* ABB::nodoMinimo(Nodo* actual) const {
     Nodo* p = actual;
     while (p != NULL && p->izq != NULL) p = p->izq;
     return p;
 }
 
-// Elimina una clave del ABB
+// Eliminamos una clave del ABB
 bool ABB::eliminar(int clave) {
     return eliminarRec(raiz, clave);
 }
 
-// Eliminación recursiva con 3 casos: hoja, un hijo, dos hijos
+// Eliminamos recursivamente (3 casos: hoja, un hijo, dos hijos)
 bool ABB::eliminarRec(Nodo*& actual, int clave) {
     if (actual == NULL) return false;
 
     if (clave < actual->clave) return eliminarRec(actual->izq, clave);
     if (clave > actual->clave) return eliminarRec(actual->der, clave);
 
-    // caso encontrado
-    if (actual->izq == NULL && actual->der == NULL) { // hoja
-        delete actual;
-        actual = NULL;
-    } else if (actual->izq == NULL) { // un hijo derecho
+    // Encontramos la clave
+    if (actual->izq == NULL && actual->der == NULL) { 
+        delete actual; actual = NULL;
+    } else if (actual->izq == NULL) { 
         Nodo* tmp = actual->der;
-        delete actual;
-        actual = tmp;
-    } else if (actual->der == NULL) { // un hijo izquierdo
+        delete actual; actual = tmp;
+    } else if (actual->der == NULL) { 
         Nodo* tmp = actual->izq;
-        delete actual;
-        actual = tmp;
-    } else { // dos hijos: reemplazar con el sucesor
+        delete actual; actual = tmp;
+    } else { 
         Nodo* sucesor = nodoMinimo(actual->der);
         actual->clave = sucesor->clave;
         eliminarRec(actual->der, sucesor->clave);
@@ -85,13 +83,13 @@ bool ABB::eliminarRec(Nodo*& actual, int clave) {
     return true;
 }
 
-// Recorrido en inorden
-void ABB::inorden(std::list<int>& salida) const {
+// Recorremos en inorden y guardamos las claves en la lista
+void ABB::inorden(list<int>& salida) const {
     salida.clear();
     inordenRec(raiz, salida);
 }
 
-void ABB::inordenRec(Nodo* actual, std::list<int>& salida) const {
+void ABB::inordenRec(Nodo* actual, list<int>& salida) const {
     if (actual == NULL) return;
     inordenRec(actual->izq, salida);
     salida.push_back(actual->clave);
