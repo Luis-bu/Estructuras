@@ -3,7 +3,7 @@
 AVL::AVL() : raiz(NULL) {}
 AVL::~AVL() { limpiar(); }
 
-// Libera todos los nodos del árbol
+// Liberamos todos los nodos del árbol
 void AVL::limpiar() {
     limpiarRec(raiz);
     raiz = NULL;
@@ -16,13 +16,13 @@ void AVL::limpiarRec(Nodo* actual) {
     delete actual;
 }
 
-// Calcula la altura de un nodo
+// Calculamos la altura de un nodo
 int AVL::alturaDe(Nodo* actual) const {
     if (actual == NULL) return 0;
     return actual->altura;
 }
 
-// Recalcula la altura de un nodo después de inserción/eliminación
+// Recalculamos la altura de un nodo después de inserción/eliminación
 void AVL::actualizarAltura(Nodo* actual) {
     if (actual == NULL) return;
     int hIzq = alturaDe(actual->izq);
@@ -64,7 +64,7 @@ AVL::Nodo* AVL::rotacionIzquierda(Nodo* x) {
     return y;
 }
 
-// Inserta un valor y reequilibra si es necesario
+// Insertamos un valor y reequilibramos si es necesario
 bool AVL::insertar(int clave) {
     bool cambiado = false;
     raiz = insertarRec(raiz, clave, cambiado);
@@ -102,7 +102,7 @@ AVL::Nodo* AVL::insertarRec(Nodo* actual, int clave, bool& cambiado) {
     return actual;
 }
 
-// Verifica si una clave existe
+// Verificamos si una clave existe
 bool AVL::contiene(int clave) const {
     return contieneRec(raiz, clave);
 }
@@ -114,14 +114,14 @@ bool AVL::contieneRec(Nodo* actual, int clave) const {
     return true;
 }
 
-// Encuentra el nodo mínimo
+// Encontramos el nodo mínimo
 AVL::Nodo* AVL::nodoMinimo(Nodo* actual) const {
     Nodo* p = actual;
     while (p != NULL && p->izq != NULL) p = p->izq;
     return p;
 }
 
-// Elimina un valor y reequilibra si es necesario
+// Eliminamos un valor y reequilibramos si es necesario
 bool AVL::eliminar(int clave) {
     bool cambiado = false;
     raiz = eliminarRec(raiz, clave, cambiado);

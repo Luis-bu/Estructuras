@@ -3,7 +3,7 @@
 ABB::ABB() : raiz(NULL) {}
 ABB::~ABB() { limpiar(); }
 
-// Libera toda la memoria del árbol
+// Liberamos toda la memoria del árbol
 void ABB::limpiar() {
     limpiarRec(raiz);
     raiz = NULL;
@@ -22,7 +22,7 @@ bool ABB::insertar(int clave) {
     return insertarRec(raiz, clave);
 }
 
-// Inserción recursiva (O(log n) en promedio, O(n) en peor caso si se desbalancea)
+// Inserción recursiva 
 bool ABB::insertarRec(Nodo*& actual, int clave) {
     if (actual == NULL) { // caso base: nodo vacío
         actual = new Nodo(clave);
@@ -38,7 +38,7 @@ bool ABB::contiene(int clave) const {
     return contieneRec(raiz, clave);
 }
 
-// Búsqueda recursiva
+// Búsqueda recursiva 
 bool ABB::contieneRec(Nodo* actual, int clave) const {
     if (actual == NULL) return false;
     if (clave < actual->clave) return contieneRec(actual->izq, clave);
@@ -85,7 +85,7 @@ bool ABB::eliminarRec(Nodo*& actual, int clave) {
     return true;
 }
 
-// Recorrido en inorden (devuelve claves ordenadas)
+// Recorrido en inorden
 void ABB::inorden(std::list<int>& salida) const {
     salida.clear();
     inordenRec(raiz, salida);
