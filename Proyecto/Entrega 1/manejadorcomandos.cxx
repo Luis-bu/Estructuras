@@ -1,5 +1,7 @@
 #include "manejadorcomandos.h"
 #include "arbolhuffman.h"
+#include "nodo.h"
+
 
 #include <algorithm>
 #include <cctype>
@@ -416,7 +418,7 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
     }
     // construir árbol para decodificar
     ArbolHuffman arbol(frec);
-    ArbolHuffman::Nodo* root = arbol.obtenerRaiz();
+    Nodo* root = arbol.obtenerRaiz();
     uint32_t ns;
     if (!in.read(reinterpret_cast<char*>(&ns), sizeof(ns))) {
         cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
@@ -457,7 +459,7 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
         string decoded;
         decoded.reserve(static_cast<size_t>(wi));
         for (uint64_t cnt = 0; cnt < wi; ++cnt) {
-            ArbolHuffman::Nodo* node = root;
+            Nodo* node = root;
             while (node->left || node->right) {
                 int bit = readBit();
                 if (bit < 0) {

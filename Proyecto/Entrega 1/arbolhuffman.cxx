@@ -1,24 +1,22 @@
-// arbolhuffman.cxx
-// Implementación del TAD para árboles de Huffman.
-
 #include "arbolhuffman.h"
+#include "nodo.h"
 #include <queue>
 
 using std::priority_queue;
-using std::unordered_map;
 using std::string;
 
-// Comparador para la cola de prioridad (frecuencia ascendente).
+// Comparamos para ordenar los nodos por frecuencia
 struct CompareHuff {
-    bool operator()(ArbolHuffman::Nodo* a, ArbolHuffman::Nodo* b) {
+    bool operator()(Nodo* a, Nodo* b) const {
         if (a->freq == b->freq) return a->c > b->c;
         return a->freq > b->freq;
     }
 };
 
-ArbolHuffman::ArbolHuffman(const unordered_map<char, unsigned long long>& frec) : raiz(nullptr) {
+// Constructor: crea el árbol de Huffman a partir de las frecuencias
+ArbolHuffman::ArbolHuffman(const std::unordered_map<char, unsigned long long>& frec) : raiz(nullptr) {
     priority_queue<Nodo*, std::vector<Nodo*>, CompareHuff> pq;
-    for (auto& kv : frec) {
+    for (const auto& kv : frec) {
         pq.push(new Nodo(kv.first, kv.second));
     }
     if (pq.empty()) return;
@@ -36,17 +34,12 @@ ArbolHuffman::ArbolHuffman(const unordered_map<char, unsigned long long>& frec) 
     construirCodigos(raiz, "");
 }
 
+// Destructor
 ArbolHuffman::~ArbolHuffman() {
     liberar(raiz);
 }
 
-void ArbolHuffman::liberar(Nodo* nodo) {
-    if (!nodo) return;
-    liberar(nodo->left);
-    liberar(nodo->right);
-    delete nodo;
-}
-
+// Recorremos el árbol y genera los códigos para cada símbolo
 void ArbolHuffman::construirCodigos(Nodo* nodo, const string& prefijo) {
     if (!nodo) return;
     if (!nodo->left && !nodo->right) {
@@ -57,10 +50,20 @@ void ArbolHuffman::construirCodigos(Nodo* nodo, const string& prefijo) {
     construirCodigos(nodo->right, prefijo + "1");
 }
 
-const unordered_map<char, string>& ArbolHuffman::obtenerCodigos() const {
+// Liberamos recursivamente la memoria del árbol
+void ArbolHuffman::liberar(Nodo* nodo) {
+    if (!nodo) return;
+    liberar(nodo->left);
+    liberar(nodo->right);
+    delete nodo;
+}
+
+// Devolvemos el mapa de códigos binarios
+const std::unordered_map<char, string>& ArbolHuffman::obtenerCodigos() const {
     return codigos;
 }
 
-ArbolHuffman::Nodo* ArbolHuffman::obtenerRaiz() const {
+// Devolvemos la raíz del árbol
+Nodo* ArbolHuffman::obtenerRaiz() const {
     return raiz;
 }
