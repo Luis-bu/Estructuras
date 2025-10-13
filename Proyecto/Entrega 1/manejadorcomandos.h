@@ -26,6 +26,10 @@ private:
     void comandoEnmascarar(const std::vector<std::string>& params);
     void comandoGuardar(const std::vector<std::string>& params);
 
+    // Funciones para los comandos de compresión y descompresión Huffman.
+    void comandoCodificar(const std::vector<std::string>& params);
+    void comandoDecodificar(const std::vector<std::string>& params);
+
     // Función que devuelve el conjunto de caracteres permitidos para las bases.
     std::vector<char> getOrden();
 

@@ -1,4 +1,5 @@
 #include "manejadorcomandos.h"
+#include "arbolhuffman.h"
 
 #include <algorithm>
 #include <cctype>
@@ -6,6 +7,9 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
+#include <queue>
+#include <cstdint>
 
 using std::cout;
 using std::endl;
@@ -110,13 +114,16 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
         comandoEnmascarar(params);
     } else if (cmd == "guardar") {
         comandoGuardar(params);
-    } else if (cmd == "codificar" || cmd == "decodificar" || cmd == "ruta_mas_corta" || cmd == "base_remota") {
+    } else if (cmd == "codificar") {
+        comandoCodificar(params);
+    } else if (cmd == "decodificar") {
+        comandoDecodificar(params);
+    } else if (cmd == "ruta_mas_corta" || cmd == "base_remota") {
         // Informamos que estos comandos están reconocidos pero no implementados.
         cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
     } else if (cmd == "salir") {
     }
 }
-
 
 //CORRECIÓN: "El comando permite cargar secuencias que cuentan con símbolos no permitidos como bases."
 //SOLUCIÓN: Se ha añadido una validación al cargar secuencias para asegurar que sólo se acepten bases permitidas. Si una secuencia contiene símbolos no válidos, se informa al usuario y no se carga esa secuencia.
@@ -130,7 +137,6 @@ void ManejadorComandos::comandoCargar(const vector<string>& params) {
     }
     vector<char> permitido = getOrden();
     auto esValida = [&](char c) {
-        // Convertir a mayúscula por si el archivo contiene minúsculas.
         char up = std::toupper(static_cast<unsigned char>(c));
         return std::find(permitido.begin(), permitido.end(), up) != permitido.end();
     };
@@ -142,7 +148,6 @@ void ManejadorComandos::comandoCargar(const vector<string>& params) {
     bool secuenciaValida = true;
     while (std::getline(archivo, linea)) {
         if (!linea.empty() && linea[0] == '>') {
-            // Al encontrar una nueva cabecera, guardamos la anterior si es válida.
             if (!nombreSec.empty()) {
                 if (secuenciaValida) {
                     secuencias.emplace_back(nombreSec, bases, lineLength);
@@ -155,7 +160,6 @@ void ManejadorComandos::comandoCargar(const vector<string>& params) {
             lineLength = 0;
             secuenciaValida = true;
         } else {
-            // Acumulamos las bases asegurándonos de que todas sean válidas.
             if (!linea.empty()) {
                 if (lineLength == 0) {
                     lineLength = linea.length();
@@ -164,13 +168,11 @@ void ManejadorComandos::comandoCargar(const vector<string>& params) {
                     if (!esValida(c)) {
                         secuenciaValida = false;
                     }
-                    // Conservamos las letras tal como vienen para no modificar el formato original.
                     bases.push_back(c);
                 }
             }
         }
     }
-    // Guardar la última secuencia leída
     if (!nombreSec.empty()) {
         if (secuenciaValida) {
             secuencias.emplace_back(nombreSec, bases, lineLength);
@@ -206,13 +208,11 @@ void ManejadorComandos::comandoListarSecuencias() {
     }
 }
 
-
 //CORRECIÓN: "Como sugerencia, no incluir las bases que tengan conteo igual a 0."
 //SOLUCIÓN: Se ha modificado la función del comando histograma para que sólo muestre las bases con conteo mayor a 0.
 // Muestra el histograma de una secuencia indicada por su nombre.
 void ManejadorComandos::comandoHistograma(const vector<string>& params) {
     const string& descripcion = params[0];
-    // Buscar la secuencia por nombre.
     auto it = std::find_if(secuencias.begin(), secuencias.end(), [&](const Secuencia& s) {
         return s.getNombre() == descripcion;
     });
@@ -220,10 +220,8 @@ void ManejadorComandos::comandoHistograma(const vector<string>& params) {
         cout << "Secuencia inválida." << endl;
         return;
     }
-    // Obtener el orden de bases permitido.
     vector<char> orden = getOrden();
     const string& bases = it->getBases();
-    // Contar frecuencias y mostrar sólo aquellas mayores a 0.
     for (char base : orden) {
         int freq = 0;
         for (char b : bases) {
@@ -324,3 +322,156 @@ void ManejadorComandos::mostrarAyudaComando(const string& cmd) {
         cout << "No se encontró ayuda para el comando: " << cmd << endl;
     }
 }
+
+//---------------------------------------------------------------------
+// Implementación de los comandos de compresión y descompresión Huffman
+//---------------------------------------------------------------------
+
+void ManejadorComandos::comandoCodificar(const vector<string>& params) {
+    const string& nombreArchivo = params[0];
+    if (secuencias.empty()) {
+        cout << "No hay secuencias cargadas en memoria." << endl;
+        return;
+    }
+    // calcular frecuencias
+    std::unordered_map<char, unsigned long long> frec;
+    for (const auto& seq : secuencias) {
+        const string& b = seq.getBases();
+        for (char c : b) frec[c]++;
+    }
+    // construir árbol de Huffman con el TAD
+    ArbolHuffman arbol(frec);
+    const auto& codes = arbol.obtenerCodigos();
+    // abrir archivo
+    std::ofstream out(nombreArchivo.c_str(), std::ios::binary);
+    if (!out) {
+        cout << "No se pueden guardar las secuencias cargadas en " << nombreArchivo << "." << endl;
+        return;
+    }
+    // escribir número de símbolos y pares símbolo-frecuencia
+    uint16_t n = static_cast<uint16_t>(frec.size());
+    out.write(reinterpret_cast<const char*>(&n), sizeof(n));
+    for (const auto& kv : frec) {
+        char c = kv.first;
+        unsigned long long f = kv.second;
+        out.write(&c, sizeof(char));
+        out.write(reinterpret_cast<const char*>(&f), sizeof(unsigned long long));
+    }
+    // escribir número de secuencias
+    uint32_t ns = static_cast<uint32_t>(secuencias.size());
+    out.write(reinterpret_cast<const char*>(&ns), sizeof(ns));
+    // escribir nombres
+    for (const auto& seq : secuencias) {
+        const string& nombre = seq.getNombre();
+        uint16_t li = static_cast<uint16_t>(nombre.size());
+        out.write(reinterpret_cast<const char*>(&li), sizeof(li));
+        out.write(nombre.c_str(), nombre.size());
+    }
+    // escribir cada secuencia: longitud, justificación y código binario
+    for (const auto& seq : secuencias) {
+        const string& b = seq.getBases();
+        uint64_t wi = static_cast<uint64_t>(b.size());
+        uint16_t xi = static_cast<uint16_t>(seq.getLineLength());
+        out.write(reinterpret_cast<const char*>(&wi), sizeof(wi));
+        out.write(reinterpret_cast<const char*>(&xi), sizeof(xi));
+        // construir cadena de bits
+        std::string bits;
+        bits.reserve(b.size() * 4);
+        for (char ch : b) bits += codes.at(ch);
+        size_t byteCount = (bits.size() + 7) / 8;
+        std::vector<unsigned char> buffer(byteCount, 0);
+        for (size_t i = 0; i < bits.size(); ++i) {
+            if (bits[i] == '1') {
+                buffer[i / 8] |= (1 << (7 - (i % 8)));
+            }
+        }
+        out.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+    }
+    out.close();
+    cout << "Secuencias codificadas y almacenadas en " << nombreArchivo << "." << endl;
+}
+
+void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
+    const string& nombreArchivo = params[0];
+    std::ifstream in(nombreArchivo.c_str(), std::ios::binary);
+    if (!in) {
+        cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
+        return;
+    }
+    secuencias.clear();
+    uint16_t n;
+    if (!in.read(reinterpret_cast<char*>(&n), sizeof(n))) {
+        cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
+        return;
+    }
+    std::unordered_map<char, unsigned long long> frec;
+    for (uint16_t i = 0; i < n; ++i) {
+        char c;
+        unsigned long long f;
+        if (!in.read(&c, sizeof(char)) || !in.read(reinterpret_cast<char*>(&f), sizeof(unsigned long long))) {
+            cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
+            return;
+        }
+        frec[c] = f;
+    }
+    // construir árbol para decodificar
+    ArbolHuffman arbol(frec);
+    ArbolHuffman::Nodo* root = arbol.obtenerRaiz();
+    uint32_t ns;
+    if (!in.read(reinterpret_cast<char*>(&ns), sizeof(ns))) {
+        cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
+        return;
+    }
+    std::vector<string> nombres;
+    nombres.reserve(ns);
+    for (uint32_t i = 0; i < ns; ++i) {
+        uint16_t li;
+        if (!in.read(reinterpret_cast<char*>(&li), sizeof(li))) {
+            cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
+            return;
+        }
+        string nombre(li, '\0');
+        if (!in.read(&nombre[0], li)) {
+            cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
+            return;
+        }
+        nombres.push_back(nombre);
+    }
+    unsigned char currentByte = 0;
+    int bitsLeft = 0;
+    auto readBit = [&]() -> int {
+        if (bitsLeft == 0) {
+            if (!in.read(reinterpret_cast<char*>(&currentByte), 1)) return -1;
+            bitsLeft = 8;
+        }
+        bitsLeft--;
+        return (currentByte >> bitsLeft) & 1;
+    };
+    for (uint32_t idx = 0; idx < ns; ++idx) {
+        uint64_t wi;
+        uint16_t xi;
+        if (!in.read(reinterpret_cast<char*>(&wi), sizeof(wi)) || !in.read(reinterpret_cast<char*>(&xi), sizeof(xi))) {
+            cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
+            return;
+        }
+        string decoded;
+        decoded.reserve(static_cast<size_t>(wi));
+        for (uint64_t cnt = 0; cnt < wi; ++cnt) {
+            ArbolHuffman::Nodo* node = root;
+            while (node->left || node->right) {
+                int bit = readBit();
+                if (bit < 0) {
+                    cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
+                    return;
+                }
+                node = (bit == 0) ? node->left : node->right;
+            }
+            decoded.push_back(node->c);
+        }
+        bitsLeft = 0;
+        secuencias.emplace_back(nombres[idx], decoded, static_cast<size_t>(xi));
+    }
+    in.close();
+    cout << "Secuencias decodificadas desde " << nombreArchivo << " y cargadas en memoria." << endl;
+}
+
