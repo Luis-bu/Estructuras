@@ -3,31 +3,52 @@
 
 #include <string>
 #include <vector>
-#include <fstream>
 #include "secuencia.h"
 
-// Estructura que representa un comando
+// Estructura que representa un comando disponible en nuestro programa.
 struct Comando {
-    string nombre;
-    int numParametros;
-    string textoAyuda;
+    std::string nombre;      
+    int numParametros;      
+    std::string textoAyuda;  
 };
 
-// Clase que maneja los comandos
+// Clase que maneja el registro, validación y ejecución de comandos.
 class ManejadorComandos {
 private:
-    vector<Comando> comandos;
-    vector<Secuencia> secuencias;
+    std::vector<Comando> comandos;     
+    std::vector<Secuencia> secuencias; 
+
+    // Funciones auxiliares para los distintos comandos.
+    void comandoCargar(const std::vector<std::string>& params);
+    void comandoListarSecuencias();
+    void comandoHistograma(const std::vector<std::string>& params);
+    void comandoEsSubsecuencia(const std::vector<std::string>& params);
+    void comandoEnmascarar(const std::vector<std::string>& params);
+    void comandoGuardar(const std::vector<std::string>& params);
+
+    // Función que devuelve el conjunto de caracteres permitidos para las bases.
+    std::vector<char> getOrden();
+
+    // Devuelve true si la cadena representa un entero válido.
+    bool esEntero(const std::string& str);
+
+    // Busca un comando por nombre y devuelve su definición.
+    bool buscarComando(const std::string& cmd, Comando& comando) const;
+
+    // Valida un comando y sus parámetros.
+    bool validarComando(const std::string& cmd, const std::vector<std::string>& params);
 
 public:
     ManejadorComandos();
-    bool esEntero(const string& str);
-    vector<char> getOrden();
-    bool buscarComando(const string& cmd, Comando& comando) const;
-    bool validarComando(const string& cmd, const vector<string>& params);
-    void ejecutarComando(const string& cmd, const vector<string>& params);
+
+    // Ejecuta el comando especificado si es válido.
+    void ejecutarComando(const std::string& cmd, const std::vector<std::string>& params);
+
+    // Muestra la lista de comandos disponibles.
     void mostrarAyuda();
-    void mostrarAyudaComando(const string& cmd);
+
+    // Muestra la ayuda detallada de un comando específico.
+    void mostrarAyudaComando(const std::string& cmd);
 };
 
-#endif
+#endif // MANEJADORCOMANDOS_H
