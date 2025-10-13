@@ -325,10 +325,7 @@ void ManejadorComandos::mostrarAyudaComando(const string& cmd) {
     }
 }
 
-//---------------------------------------------------------------------
-// Implementación de los comandos de compresión y descompresión Huffman
-//---------------------------------------------------------------------
-
+// Función que codifica las secuencias cargadas usando Huffman y las guarda en un archivo binario.
 void ManejadorComandos::comandoCodificar(const vector<string>& params) {
     const string& nombreArchivo = params[0];
     if (secuencias.empty()) {
@@ -393,6 +390,7 @@ void ManejadorComandos::comandoCodificar(const vector<string>& params) {
     cout << "Secuencias codificadas y almacenadas en " << nombreArchivo << "." << endl;
 }
 
+// Función que decodifica un archivo binario con secuencias codificadas usando Huffman y las carga en memoria.
 void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
     const string& nombreArchivo = params[0];
     std::ifstream in(nombreArchivo.c_str(), std::ios::binary);
@@ -406,6 +404,7 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
         cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
         return;
     }
+    // leer pares símbolo-frecuencia
     std::unordered_map<char, unsigned long long> frec;
     for (uint16_t i = 0; i < n; ++i) {
         char c;
@@ -424,6 +423,7 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
         cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
         return;
     }
+    // leer nombres
     std::vector<string> nombres;
     nombres.reserve(ns);
     for (uint32_t i = 0; i < ns; ++i) {
@@ -449,6 +449,7 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
         bitsLeft--;
         return (currentByte >> bitsLeft) & 1;
     };
+    // leer cada secuencia
     for (uint32_t idx = 0; idx < ns; ++idx) {
         uint64_t wi;
         uint16_t xi;
