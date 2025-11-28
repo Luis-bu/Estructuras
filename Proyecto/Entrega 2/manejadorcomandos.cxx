@@ -2,7 +2,7 @@
 #include "arbolhuffman.h"
 #include "nodo.h"
 #include "GrafoSecuencia.h"    
-#include "nodografo.h"
+#include "NodoGrafo.h"
 
 #include <algorithm>
 #include <cctype>
@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <queue>
 #include <cstdint>
+#include <iomanip>
 
 using std::cout;
 using std::endl;

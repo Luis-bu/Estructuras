@@ -1,6 +1,7 @@
 #ifndef SECUENCIA_H
 #define SECUENCIA_H
 
+#include <vector>
 #include <string>
 
 using namespace std;
@@ -21,6 +22,7 @@ public:
     string getBases() const;
     void setBases(const string& b);
     size_t getLineLength() const; 
+    const std::vector<std::string>& getLineas() const;
 };
 
 #endif
