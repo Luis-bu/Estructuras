@@ -1,5 +1,5 @@
 // NodoGrafo.cxx
-#include "NodoGrafo.h"
+#include "nodografo.h"
 #include <sstream>
 
 NodoGrafo::NodoGrafo(int f, int c, char b)

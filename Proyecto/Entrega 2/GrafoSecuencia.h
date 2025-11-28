@@ -2,7 +2,7 @@
 #ifndef GRAFOSECUENCIA_H
 #define GRAFOSECUENCIA_H
 
-#include "NodoGrafo.h"
+#include "nodografo.h"
 #include <vector>
 #include <string>
 #include <queue>

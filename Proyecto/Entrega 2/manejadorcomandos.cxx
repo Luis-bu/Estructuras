@@ -1,7 +1,7 @@
 #include "manejadorcomandos.h"
 #include "arbolhuffman.h"
 #include "nodo.h"
-#include "grafosecuencia.h"    // NUEVO: incluido para los comandos del grafo
+#include "GrafoSecuencia.h"    
 #include "nodografo.h"
 
 #include <algorithm>

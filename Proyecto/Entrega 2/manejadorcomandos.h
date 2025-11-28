@@ -30,6 +30,10 @@ private:
     void comandoCodificar(const std::vector<std::string>& params);
     void comandoDecodificar(const std::vector<std::string>& params);
 
+    // Funciones para los comandos relacionados con grafos de secuencias.
+    void comandoRutaMasCorta(const std::vector<std::string>& params);
+    void comandoBaseRemota(const std::vector<std::string>& params);
+
     // Función que devuelve el conjunto de caracteres permitidos para las bases.
     std::vector<char> getOrden();
 
