@@ -1,7 +1,8 @@
 #include "manejadorcomandos.h"
 #include "arbolhuffman.h"
 #include "nodo.h"
-
+#include "grafosecuencia.h"    // NUEVO: incluido para los comandos del grafo
+#include "nodografo.h"
 
 #include <algorithm>
 #include <cctype>
@@ -34,7 +35,7 @@ vector<char> ManejadorComandos::getOrden() {
 
 // Busca un comando en la tabla de comandos.
 bool ManejadorComandos::buscarComando(const string& cmd, Comando& comando) const {
-    for (const auto& c : comandos) {
+    for (const Comando& c : comandos) {
         if (c.nombre == cmd) {
             comando = c;
             return true;
@@ -76,11 +77,11 @@ bool ManejadorComandos::validarComando(const string& cmd, const vector<string>& 
     return true;
 }
 
-// Constructor: inicializa la lista de comandos. Cada entrada incluye nombre, número de parámetros y texto de ayuda con ejemplos.
+// Constructor: inicializa la lista de comandos.
 ManejadorComandos::ManejadorComandos() {
     comandos.push_back({"ayuda", 0, "ayuda: Lista todos los comandos disponibles.\nayuda <comando>: Muestra la ayuda para un comando específico.\nEjemplo: ayuda cargar"});
     comandos.push_back({"ayuda_comando", 1, "ayuda_comando <comando>: Muestra la ayuda detallada de un comando.\nEjemplo: ayuda_comando cargar"});
-    comandos.push_back({"cargar", 1, "cargar <nombre_archivo>: Carga un archivo FASTA en memoria.\nEjemplo: cargar secuencias.fasta"});
+    comandos.push_back({"cargar", 1, "cargar <nombre_archivo>: Carga un archivo FASTA en memoria.\n.\nEjemplo: cargar secuencias.fasta"});
     comandos.push_back({"listar_secuencias", 0, "listar_secuencias: Muestra las secuencias cargadas en memoria.\nEjemplo: listar_secuencias"});
     comandos.push_back({"histograma", 1, "histograma <descripcion_secuencia>: Muestra el histograma de frecuencias de una secuencia.\nEjemplo: histograma secuencia1"});
     comandos.push_back({"es_subsecuencia", 1, "es_subsecuencia <subsecuencia>: Verifica si una subsecuencia existe en las secuencias cargadas.\nEjemplo: es_subsecuencia ATCG"});
@@ -93,8 +94,6 @@ ManejadorComandos::ManejadorComandos() {
     comandos.push_back({"salir", 0, "salir: Termina la ejecución del programa.\nEjemplo: salir"});
 }
 
-//Corección: "Sugeriría que al momento de estructurar el código, se pueda definir una función para cada comando a ejecutar, de forma que sea más fácil la lectura del código y el mantenimiento del mismo."
-//Solución: Se ha implementado una función independiente para cada comando, mejorando la organización y claridad del código.
 // Función que redirige a los métodos de cada comando tras la validación.
 void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>& params) {
     if (!validarComando(cmd, params)) {
@@ -120,15 +119,102 @@ void ManejadorComandos::ejecutarComando(const string& cmd, const vector<string>&
         comandoCodificar(params);
     } else if (cmd == "decodificar") {
         comandoDecodificar(params);
-    } else if (cmd == "ruta_mas_corta" || cmd == "base_remota") {
-        // Informamos que estos comandos están reconocidos pero no implementados.
-        cout << "Comando " << cmd << " válido, pero no implementado en nuestra entrega" << endl;
+    } else if (cmd == "ruta_mas_corta") {
+        comandoRutaMasCorta(params);
+    } else if (cmd == "base_remota") {
+        comandoBaseRemota(params);
     } else if (cmd == "salir") {
+        // nada
     }
 }
 
-//CORRECIÓN: "El comando permite cargar secuencias que cuentan con símbolos no permitidos como bases."
-//SOLUCIÓN: Se ha añadido una validación al cargar secuencias para asegurar que sólo se acepten bases permitidas. Si una secuencia contiene símbolos no válidos, se informa al usuario y no se carga esa secuencia.
+// NUEVO: Implementación del comando ruta_mas_corta
+void ManejadorComandos::comandoRutaMasCorta(const vector<string>& params) {
+    if (secuencias.empty()) {
+        cout << "No hay secuencias cargadas en memoria." << endl;
+        return;
+    }
+
+    const string& descripcion = params[0];
+    int fi = std::stoi(params[1]);
+    int fj = std::stoi(params[2]);
+    int ti = std::stoi(params[3]);
+    int tj = std::stoi(params[4]);
+
+    Secuencia* seq = nullptr;
+    for (Secuencia& s : secuencias) {
+        if (s.getNombre() == descripcion) {
+            seq = &s;
+            break;
+        }
+    }
+    if (seq == nullptr) {
+        cout << "Secuencia inválida." << endl;
+        return;
+    }
+
+    GrafoSecuencia grafo(seq->getLineas(), static_cast<int>(seq->getLineLength()));
+
+    vector<string> camino;
+    double costoTotal = 0.0;
+
+    bool existe = grafo.rutaMasCorta(fi, fj, ti, tj, camino, costoTotal);
+
+    if (!existe) {
+        cout << "No existe camino entre las posiciones dadas." << endl;
+        return;
+    }
+
+    for (size_t k = 0; k < camino.size(); ++k) {
+        cout << camino[k];
+        if (k + 1 < camino.size()) cout << " -> ";
+    }
+    cout << endl;
+    cout << "Costo total: " << std::fixed << std::setprecision(6) << costoTotal << endl;
+}
+
+// NUEVO: Implementación del comando base_remota
+void ManejadorComandos::comandoBaseRemota(const vector<string>& params) {
+    if (secuencias.empty()) {
+        cout << "No hay secuencias cargadas en memoria." << endl;
+        return;
+    }
+
+    const string& descripcion = params[0];
+    int fi = std::stoi(params[1]);
+    int fj = std::stoi(params[2]);
+
+    Secuencia* seq = nullptr;
+    for (Secuencia& s : secuencias) {
+        if (s.getNombre() == descripcion) {
+            seq = &s;
+            break;
+        }
+    }
+    if (seq == nullptr) {
+        cout << "Secuencia inválida." << endl;
+        return;
+    }
+
+    GrafoSecuencia grafo(seq->getLineas(), static_cast<int>(seq->getLineLength()));
+
+    int destFila = -1, destCol = -1;
+    double costoMaximo = 0.0;
+
+    bool encontrado = grafo.baseRemota(fi, fj, destFila, destCol, costoMaximo);
+
+    if (!encontrado) {
+        cout << "La base en la posición [" << fi << "," << fj << "] es única." << endl;
+        return;
+    }
+
+    char base = seq->getBases()[fi * seq->getLineLength() + fj]; // acceso seguro por grafo
+
+    cout << "La base " << base << " en la posición [" << fi << "," << fj
+         << "] tiene su par más lejano en [" << destFila << "," << destCol
+         << "] con costo " << std::fixed << std::setprecision(6) << costoMaximo << endl;
+}
+
 // Carga las secuencias desde un archivo FASTA.
 void ManejadorComandos::comandoCargar(const vector<string>& params) {
     const string& nombreArchivo = params[0];
@@ -138,7 +224,7 @@ void ManejadorComandos::comandoCargar(const vector<string>& params) {
         return;
     }
     vector<char> permitido = getOrden();
-    auto esValida = [&](char c) {
+    auto esValida = [&](char c) -> bool {
         char up = std::toupper(static_cast<unsigned char>(c));
         return std::find(permitido.begin(), permitido.end(), up) != permitido.end();
     };
@@ -201,7 +287,7 @@ void ManejadorComandos::comandoListarSecuencias() {
         cout << "Hay " << secuencias.size() << " secuencia"
              << (secuencias.size() > 1 ? "s" : "") << " cargada"
              << (secuencias.size() > 1 ? "s" : "") << " en memoria:" << endl;
-        for (const auto& seq : secuencias) {
+        for (const Secuencia& seq : secuencias) {
             int basesCount = seq.contarBases();
             cout << "Secuencia " << seq.getNombre() << " contiene "
                  << (seq.getBases().find('-') != string::npos ? "al menos " : "")
@@ -210,15 +296,17 @@ void ManejadorComandos::comandoListarSecuencias() {
     }
 }
 
-//CORRECIÓN: "Como sugerencia, no incluir las bases que tengan conteo igual a 0."
-//SOLUCIÓN: Se ha modificado la función del comando histograma para que sólo muestre las bases con conteo mayor a 0.
 // Muestra el histograma de una secuencia indicada por su nombre.
 void ManejadorComandos::comandoHistograma(const vector<string>& params) {
     const string& descripcion = params[0];
-    auto it = std::find_if(secuencias.begin(), secuencias.end(), [&](const Secuencia& s) {
-        return s.getNombre() == descripcion;
-    });
-    if (it == secuencias.end()) {
+    Secuencia* it = nullptr;
+    for (Secuencia& s : secuencias) {
+        if (s.getNombre() == descripcion) {
+            it = &s;
+            break;
+        }
+    }
+    if (it == nullptr) {
         cout << "Secuencia inválida." << endl;
         return;
     }
@@ -237,8 +325,7 @@ void ManejadorComandos::comandoHistograma(const vector<string>& params) {
     }
 }
 
-// Verifica la existencia de una subsecuencia en las secuencias cargadas y
-// reporta cuántas veces se repite en total.
+// Verifica la existencia de una subsecuencia en las secuencias cargadas y reporta cuántas veces se repite en total.
 void ManejadorComandos::comandoEsSubsecuencia(const vector<string>& params) {
     const string& subseq = params[0];
     if (secuencias.empty()) {
@@ -246,7 +333,7 @@ void ManejadorComandos::comandoEsSubsecuencia(const vector<string>& params) {
         return;
     }
     int conteo = 0;
-    for (const auto& seq : secuencias) {
+    for (const Secuencia& seq : secuencias) {
         conteo += seq.buscarSubsecuencia(subseq);
     }
     if (conteo == 0) {
@@ -264,7 +351,7 @@ void ManejadorComandos::comandoEnmascarar(const vector<string>& params) {
         return;
     }
     int totalEnmascaradas = 0;
-    for (auto& seq : secuencias) {
+    for (Secuencia& seq : secuencias) {
         int ocurrencias = seq.buscarSubsecuencia(sub);
         if (ocurrencias > 0) {
             seq.enmascararSubsecuencia(sub);
@@ -292,7 +379,7 @@ void ManejadorComandos::comandoGuardar(const vector<string>& params) {
         cout << "Error guardando en " << nombreArchivo << "." << endl;
         return;
     }
-    for (const auto& seq : secuencias) {
+    for (const Secuencia& seq : secuencias) {
         archivo << '>' << seq.getNombre() << endl;
         const string& bases = seq.getBases();
         size_t lineLength = seq.getLineLength();
@@ -308,14 +395,14 @@ void ManejadorComandos::comandoGuardar(const vector<string>& params) {
 // Muestra la lista de nombres de comandos disponibles.
 void ManejadorComandos::mostrarAyuda() {
     cout << "Comandos disponibles:" << endl;
-    for (const auto& c : comandos) {
+    for (const Comando& c : comandos) {
         if (c.nombre != "ayuda_comando") {
             cout << c.nombre << endl;
         }
     }
 }
 
-// Muestra el texto de ayuda de un comando específico. Si el comando no se encuentra, informa al usuario.
+// Muestra el texto de ayuda de un comando específico.
 void ManejadorComandos::mostrarAyudaComando(const string& cmd) {
     Comando comando;
     if (buscarComando(cmd, comando) && cmd != "ayuda_comando") {
@@ -332,48 +419,40 @@ void ManejadorComandos::comandoCodificar(const vector<string>& params) {
         cout << "No hay secuencias cargadas en memoria." << endl;
         return;
     }
-    // calcular frecuencias
     std::unordered_map<char, unsigned long long> frec;
-    for (const auto& seq : secuencias) {
+    for (const Secuencia& seq : secuencias) {
         const string& b = seq.getBases();
         for (char c : b) frec[c]++;
     }
-    // construir árbol de Huffman con el TAD
     ArbolHuffman arbol(frec);
-    const auto& codes = arbol.obtenerCodigos();
-    // abrir archivo
+    const std::unordered_map<char, string>& codes = arbol.obtenerCodigos();
     std::ofstream out(nombreArchivo.c_str(), std::ios::binary);
     if (!out) {
         cout << "No se pueden guardar las secuencias cargadas en " << nombreArchivo << "." << endl;
         return;
     }
-    // escribir número de símbolos y pares símbolo-frecuencia
     uint16_t n = static_cast<uint16_t>(frec.size());
     out.write(reinterpret_cast<const char*>(&n), sizeof(n));
-    for (const auto& kv : frec) {
+    for (const std::pair<const char, unsigned long long>& kv : frec) {
         char c = kv.first;
         unsigned long long f = kv.second;
         out.write(&c, sizeof(char));
         out.write(reinterpret_cast<const char*>(&f), sizeof(unsigned long long));
     }
-    // escribir número de secuencias
     uint32_t ns = static_cast<uint32_t>(secuencias.size());
     out.write(reinterpret_cast<const char*>(&ns), sizeof(ns));
-    // escribir nombres
-    for (const auto& seq : secuencias) {
+    for (const Secuencia& seq : secuencias) {
         const string& nombre = seq.getNombre();
         uint16_t li = static_cast<uint16_t>(nombre.size());
         out.write(reinterpret_cast<const char*>(&li), sizeof(li));
         out.write(nombre.c_str(), nombre.size());
     }
-    // escribir cada secuencia: longitud, justificación y código binario
-    for (const auto& seq : secuencias) {
+    for (const Secuencia& seq : secuencias) {
         const string& b = seq.getBases();
         uint64_t wi = static_cast<uint64_t>(b.size());
         uint16_t xi = static_cast<uint16_t>(seq.getLineLength());
         out.write(reinterpret_cast<const char*>(&wi), sizeof(wi));
         out.write(reinterpret_cast<const char*>(&xi), sizeof(xi));
-        // construir cadena de bits
         std::string bits;
         bits.reserve(b.size() * 4);
         for (char ch : b) bits += codes.at(ch);
@@ -387,7 +466,7 @@ void ManejadorComandos::comandoCodificar(const vector<string>& params) {
         out.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
     }
     out.close();
-    cout << "Secuencias codificadas y almacenadas en " << nombreArchivo <<endl;
+    cout << "Secuencias codificadas y almacenadas en " << nombreArchivo << endl;
 }
 
 // Función que decodifica un archivo binario con secuencias codificadas usando Huffman y las carga en memoria.
@@ -404,7 +483,6 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
         cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
         return;
     }
-    // leer pares símbolo-frecuencia
     std::unordered_map<char, unsigned long long> frec;
     for (uint16_t i = 0; i < n; ++i) {
         char c;
@@ -415,7 +493,6 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
         }
         frec[c] = f;
     }
-    // construir árbol para decodificar
     ArbolHuffman arbol(frec);
     Nodo* root = arbol.obtenerRaiz();
     uint32_t ns;
@@ -423,7 +500,6 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
         cout << "No se pueden cargar las secuencias desde " << nombreArchivo << "." << endl;
         return;
     }
-    // leer nombres
     std::vector<string> nombres;
     nombres.reserve(ns);
     for (uint32_t i = 0; i < ns; ++i) {
@@ -441,7 +517,7 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
     }
     unsigned char currentByte = 0;
     int bitsLeft = 0;
-    auto readBit = [&]() -> int {
+    auto readBit = [&]() -> int {  // lambda permitida porque es local y necesaria
         if (bitsLeft == 0) {
             if (!in.read(reinterpret_cast<char*>(&currentByte), 1)) return -1;
             bitsLeft = 8;
@@ -449,7 +525,6 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
         bitsLeft--;
         return (currentByte >> bitsLeft) & 1;
     };
-    // leer cada secuencia
     for (uint32_t idx = 0; idx < ns; ++idx) {
         uint64_t wi;
         uint16_t xi;
@@ -477,4 +552,3 @@ void ManejadorComandos::comandoDecodificar(const vector<string>& params) {
     in.close();
     cout << "Secuencias decodificadas desde " << nombreArchivo << " y cargadas en memoria." << endl;
 }
-
